@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>DropZone FF</title>
+
+<style>
+
+body{
+margin:0;
+font-family:Segoe UI;
+background:#020617;
+color:white;
+text-align:center;
+}
+
+.nav{
+background:#0f172a;
+padding:20px;
+display:flex;
+justify-content:space-between;
+}
+
+.nav a{
+color:white;
+margin-left:20px;
+text-decoration:none;
+}
+
+.hero{
+margin-top:120px;
+}
+
+button{
+padding:15px 30px;
+background:#ff3b3b;
+border:none;
+color:white;
+cursor:pointer;
+border-radius:6px;
+}
+
+button:hover{
+box-shadow:0 0 15px red;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="nav">
+<div>DropZone FF</div>
+
+<div>
+<a href="login.html">Login</a>
+<a href="tournaments.html">Tournaments</a>
+<a href="leaderboard.html">Leaderboard</a>
+</div>
+</div>
+
+<div class="hero">
+
+<h1>Where Legends Drop</h1>
+<p>Compete in Free Fire tournaments</p>
+
+<button onclick="enter()">Enter Arena</button>
+
+</div>
+
+<script>
+
+function enter(){
+window.location="login.html"
+}
+
+</script>
+
+</body>
+</html>
