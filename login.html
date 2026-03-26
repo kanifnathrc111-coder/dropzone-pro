@@ -3,225 +3,254 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DropZone Elite | Secure Access</title>
-    
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-    
+    <title>DropZone Elite | Pro Max</title>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
     <style>
         :root {
             --primary: #ff4b2b;
             --secondary: #ff416c;
-            --bg: #0f2027;
-            --glass: rgba(255, 255, 255, 0.08);
+            --accent: #ffcc00; /* FF Gold vibe */
+            --bg-dark: #0a0a0c;
         }
+
+        * { box-sizing: border-box; transition: all 0.3s ease; }
 
         body {
             margin: 0;
-            font-family: 'Poppins', sans-serif;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            background: radial-gradient(circle at center, #2c5364, #203a43, #0f2027);
+            /* Gaming background feel */
+            background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), 
+                        url('https://images.unsplash.com/photo-1542751371-adc38448a05e?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');
+            background-size: cover;
+            background-position: center;
             color: white;
             overflow: hidden;
         }
 
         .card {
-            background: var(--glass);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
+            background: rgba(255, 255, 255, 0.07);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
             padding: 40px;
             border-radius: 24px;
             width: 360px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.6);
-            border: 1px solid rgba(255,255,255,0.1);
             text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
         }
 
         h2 {
+            font-size: 2rem;
+            letter-spacing: 2px;
             margin-bottom: 30px;
-            font-weight: 600;
-            letter-spacing: 3px;
             text-transform: uppercase;
-            background: linear-gradient(to right, #fff, #aaa);
+            background: linear-gradient(to right, #fff, var(--accent));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            font-weight: 900;
         }
 
-        .input-group {
-            margin-bottom: 18px;
-        }
+        .input-group { margin-bottom: 15px; text-align: left; }
 
         input {
             width: 100%;
-            padding: 14px 18px;
-            box-sizing: border-box;
-            border: 1px solid rgba(255,255,255,0.1);
+            padding: 14px 20px;
+            border: 2px solid transparent;
             border-radius: 12px;
-            background: rgba(0,0,0,0.4);
+            background: rgba(0, 0, 0, 0.4);
             color: white;
-            font-size: 15px;
+            font-size: 1rem;
             outline: none;
-            transition: all 0.3s ease;
         }
 
         input:focus {
             border-color: var(--primary);
-            background: rgba(0,0,0,0.6);
-            box-shadow: 0 0 10px rgba(255, 75, 43, 0.3);
+            background: rgba(0, 0, 0, 0.6);
+            box-shadow: 0 0 15px rgba(255, 75, 43, 0.3);
         }
 
         button {
             width: 100%;
-            padding: 15px;
-            margin-top: 15px;
+            padding: 16px;
+            margin-top: 10px;
             border: none;
             border-radius: 12px;
             background: linear-gradient(45deg, var(--primary), var(--secondary));
             color: white;
-            font-weight: 600;
-            font-size: 16px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            text-transform: uppercase;
             cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 15px rgba(255, 65, 108, 0.4);
         }
 
         button:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(255, 75, 43, 0.4);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 65, 108, 0.6);
         }
 
-        button:active { transform: translateY(0); }
-
-        button:disabled {
-            opacity: 0.6;
-            cursor: wait;
-        }
+        button:disabled { opacity: 0.6; cursor: not-allowed; }
 
         .switch {
-            margin-top: 25px;
-            font-size: 14px;
-            color: #bbb;
+            margin-top: 20px;
+            font-size: 0.9rem;
+            color: #ccc;
             cursor: pointer;
         }
 
-        .switch span {
-            color: var(--primary);
-            font-weight: 600;
-            text-decoration: underline;
+        .switch b { color: var(--accent); }
+        .switch:hover b { text-decoration: underline; }
+
+        .error {
+            margin-top: 15px;
+            font-size: 0.85rem;
+            min-height: 20px;
+            font-weight: 500;
         }
 
-        .status-msg {
-            font-size: 13px;
-            margin-top: 15px;
-            min-height: 20px;
-            font-weight: 400;
+        /* Loading Spinner */
+        .spinner {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+            margin: 0 auto;
         }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
 <div class="card">
-    <h2 id="title">Elite Login</h2>
+    <h2 id="title">⚡ LOGIN</h2>
 
-    <div class="input-group" id="nameBox" style="display:none;">
-        <input type="text" id="name" placeholder="Gamer Tag">
+    <div id="nameBox" style="display:none;" class="input-group">
+        <input type="text" id="name" placeholder="Gamer Nickname (e.g. Pro_Slayer)">
     </div>
-    
+
     <div class="input-group">
-        <input type="email" id="email" placeholder="Email Address">
+        <input type="email" id="user" placeholder="Email Address">
     </div>
 
     <div class="input-group">
         <input type="password" id="pass" placeholder="Secret Password">
     </div>
 
-    <button id="actionBtn" onclick="handleAuth()">Access System</button>
+    <button id="btn" onclick="submitForm()">
+        <span id="btnText">Enter Battleground</span>
+        <div id="loader" class="spinner"></div>
+    </button>
 
-    <div class="status-msg" id="status"></div>
+    <div class="error" id="error"></div>
 
-    <div class="switch" onclick="toggleMode()" id="toggleBtn">
-        New recruit? <span>Join the Elite</span>
+    <div class="switch" onclick="switchMode()" id="switchText">
+        New recruit? <b>Register Here</b>
     </div>
 </div>
 
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-
 <script>
+    // Config stays the same
     const firebaseConfig = {
         apiKey: "AIzaSyAtqdZUIdCnUKwVF0ojn_Mv-zARgv0m4H0",
         authDomain: "dropzoneff-b9667.firebaseapp.com",
         projectId: "dropzoneff-b9667"
     };
 
-    firebase.initializeApp(firebaseConfig);
+    if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+    }
+    
     const auth = firebase.auth();
     const db = firebase.firestore();
 
     let isLogin = true;
 
-    // Redirect if already logged in
     auth.onAuthStateChanged(user => {
-       if (user) window.location.href = "dashboard.html";
+       // if (user) window.location.href = "dashboard.html";
     });
 
-    function toggleMode() {
+    function switchMode() {
         isLogin = !isLogin;
-        document.getElementById("title").innerText = isLogin ? "Elite Login" : "Elite Register";
-        document.getElementById("nameBox").style.display = isLogin ? "none" : "block";
-        document.getElementById("toggleBtn").innerHTML = isLogin ? 
-            "New recruit? <span>Join the Elite</span>" : 
-            "Already Elite? <span>Login Here</span>";
-        updateStatus("");
+        const title = document.getElementById("title");
+        const switchText = document.getElementById("switchText");
+        const nameBox = document.getElementById("nameBox");
+        const btnText = document.getElementById("btnText");
+
+        title.innerText = isLogin ? "⚡ LOGIN" : "🛡️ REGISTER";
+        switchText.innerHTML = isLogin ? "New recruit? <b>Register Here</b>" : "Already a veteran? <b>Login</b>";
+        btnText.innerText = isLogin ? "Enter Battleground" : "Create Soldier";
+        
+        nameBox.style.display = isLogin ? "none" : "block";
+        document.getElementById("error").innerText = "";
     }
 
-    async function handleAuth() {
-        const email = document.getElementById("email").value.trim();
-        const pass = document.getElementById("pass").value.trim();
-        const name = document.getElementById("name").value.trim();
-        const btn = document.getElementById("actionBtn");
+    async function submitForm() {
+        let email = document.getElementById("user").value.trim();
+        let pass = document.getElementById("pass").value.trim();
+        let name = document.getElementById("name").value.trim();
+        let error = document.getElementById("error");
+        let btn = document.getElementById("btn");
+        let btnText = document.getElementById("btnText");
+        let loader = document.getElementById("loader");
 
         if (!email || !pass || (!isLogin && !name)) {
-            updateStatus("⚠️ Fill all intel fields!", "#ffa500");
+            showError("⚠️ All intel fields are required!");
             return;
         }
 
+        // UI Loading State
         btn.disabled = true;
-        btn.innerText = "Synchronizing...";
+        btnText.style.display = "none";
+        loader.style.display = "block";
+        error.innerText = "";
 
         try {
             if (isLogin) {
                 await auth.signInWithEmailAndPassword(email, pass);
-                updateStatus("✅ Access Granted. Redirecting...", "#00ff88");
+                showSuccess("✅ Mission Start!");
+                window.location.href = "dashboard.html";
             } else {
-                const cred = await auth.createUserWithEmailAndPassword(email, pass);
-                
-                // Save Gamer Profile
-                await db.collection("users").doc(cred.user.uid).set({
-                    username: name,
-                    email: email,
+                let userCred = await auth.createUserWithEmailAndPassword(email, pass);
+                await db.collection("users").doc(userCred.user.uid).set({
+                    name: name,
                     coins: 100,
-                    level: 1,
-                    joinedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    rank: "Bronze",
+                    joined: new Date().toISOString()
                 });
-
-                updateStatus("✅ Registration Complete! Log in now.", "#00ff88");
-                setTimeout(toggleMode, 1500);
+                showSuccess("✅ Account Verified! Tactical entry allowed.");
+                setTimeout(() => switchMode(), 1500);
             }
         } catch (err) {
-            updateStatus("❌ " + err.message, "#ff4b2b");
+            showError("❌ " + err.message);
         } finally {
             btn.disabled = false;
-            btn.innerText = isLogin ? "Access System" : "Finalize Intel";
+            btnText.style.display = "block";
+            loader.style.display = "none";
         }
     }
 
-    function updateStatus(msg, color) {
-        const el = document.getElementById("status");
-        el.innerText = msg;
-        el.style.color = color;
+    function showError(msg) {
+        let error = document.getElementById("error");
+        error.style.color = "#ff4b2b";
+        error.innerText = msg;
+    }
+
+    function showSuccess(msg) {
+        let error = document.getElementById("error");
+        error.style.color = "#00ff88";
+        error.innerText = msg;
     }
 </script>
 
