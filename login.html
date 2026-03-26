@@ -1,257 +1,277 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DropZone Elite | Pro Max</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DropZone | Modern Login</title>
 
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
-    <style>
-        :root {
-            --primary: #ff4b2b;
-            --secondary: #ff416c;
-            --accent: #ffcc00; /* FF Gold vibe */
-            --bg-dark: #0a0a0c;
-        }
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
 
-        * { box-sizing: border-box; transition: all 0.3s ease; }
+<style>
+:root {
+    --primary: #ff8c00;
+    --secondary: #ffcc00;
+    --bg: #0f0f0f;
+    --card-bg: rgba(25, 25, 25, 0.95);
+}
 
-        body {
-            margin: 0;
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            /* Gaming background feel */
-            background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), 
-                        url('https://images.unsplash.com/photo-1542751371-adc38448a05e?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');
-            background-size: cover;
-            background-position: center;
-            color: white;
-            overflow: hidden;
-        }
+body {
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+    background: radial-gradient(circle at center, #1a1a1a 0%, #000 100%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    color: white;
+    overflow: hidden;
+}
 
-        .card {
-            background: rgba(255, 255, 255, 0.07);
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
-            padding: 40px;
-            border-radius: 24px;
-            width: 360px;
-            text-align: center;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
-        }
+/* Background Animation */
+body::before {
+    content: "";
+    position: absolute;
+    width: 300px;
+    height: 300px;
+    background: var(--primary);
+    filter: blur(150px);
+    border-radius: 50%;
+    z-index: -1;
+    animation: float 10s infinite alternate;
+}
 
-        h2 {
-            font-size: 2rem;
-            letter-spacing: 2px;
-            margin-bottom: 30px;
-            text-transform: uppercase;
-            background: linear-gradient(to right, #fff, var(--accent));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            font-weight: 900;
-        }
+@keyframes float {
+    from { transform: translate(-50%, -50%); }
+    to { transform: translate(50%, 50%); }
+}
 
-        .input-group { margin-bottom: 15px; text-align: left; }
+.container {
+    width: 380px;
+    background: var(--card-bg);
+    padding: 40px;
+    border-radius: 24px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.5), 0 0 15px rgba(255,140,0,0.1);
+    border: 1px solid rgba(255,255,255,0.05);
+    backdrop-filter: blur(10px);
+    transform: translateY(0);
+    transition: all 0.4s ease;
+}
 
-        input {
-            width: 100%;
-            padding: 14px 20px;
-            border: 2px solid transparent;
-            border-radius: 12px;
-            background: rgba(0, 0, 0, 0.4);
-            color: white;
-            font-size: 1rem;
-            outline: none;
-        }
+h2 {
+    text-align: center;
+    font-weight: 600;
+    margin-bottom: 30px;
+    letter-spacing: 1px;
+    background: linear-gradient(90deg, #ff8c00, #ffcc00);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
 
-        input:focus {
-            border-color: var(--primary);
-            background: rgba(0, 0, 0, 0.6);
-            box-shadow: 0 0 15px rgba(255, 75, 43, 0.3);
-        }
+.input-group {
+    margin-bottom: 20px;
+    position: relative;
+}
 
-        button {
-            width: 100%;
-            padding: 16px;
-            margin-top: 10px;
-            border: none;
-            border-radius: 12px;
-            background: linear-gradient(45deg, var(--primary), var(--secondary));
-            color: white;
-            font-size: 1.1rem;
-            font-weight: bold;
-            text-transform: uppercase;
-            cursor: pointer;
-            box-shadow: 0 4px 15px rgba(255, 65, 108, 0.4);
-        }
+input {
+    width: 100%;
+    padding: 14px;
+    box-sizing: border-box;
+    border-radius: 12px;
+    border: 2px solid transparent;
+    background: #222;
+    color: white;
+    font-size: 14px;
+    transition: 0.3s;
+    outline: none;
+}
 
-        button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(255, 65, 108, 0.6);
-        }
+input:focus {
+    border-color: var(--primary);
+    background: #2a2a2a;
+    box-shadow: 0 0 10px rgba(255,140,0,0.2);
+}
 
-        button:disabled { opacity: 0.6; cursor: not-allowed; }
+button {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(90deg, var(--primary), var(--secondary));
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 16px;
+    color: #000;
+    transition: 0.3s;
+    margin-top: 10px;
+}
 
-        .switch {
-            margin-top: 20px;
-            font-size: 0.9rem;
-            color: #ccc;
-            cursor: pointer;
-        }
+button:hover {
+    transform: scale(1.02);
+    box-shadow: 0 5px 15px rgba(255,140,0,0.4);
+}
 
-        .switch b { color: var(--accent); }
-        .switch:hover b { text-decoration: underline; }
+button:active {
+    transform: scale(0.98);
+}
 
-        .error {
-            margin-top: 15px;
-            font-size: 0.85rem;
-            min-height: 20px;
-            font-weight: 500;
-        }
+.switch {
+    text-align: center;
+    margin-top: 20px;
+    cursor: pointer;
+    font-size: 14px;
+    color: #888;
+    transition: 0.3s;
+}
 
-        /* Loading Spinner */
-        .spinner {
-            display: none;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255,255,255,.3);
-            border-radius: 50%;
-            border-top-color: #fff;
-            animation: spin 1s ease-in-out infinite;
-            margin: 0 auto;
-        }
+.switch b {
+    color: var(--secondary);
+}
 
-        @keyframes spin { to { transform: rotate(360deg); } }
-    </style>
+.switch:hover b {
+    text-decoration: underline;
+}
+
+#error {
+    color: #ff4d4d;
+    text-align: center;
+    font-size: 13px;
+    margin-top: 15px;
+    min-height: 20px;
+}
+
+/* Animations for switching forms */
+.fade-in {
+    animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+</style>
 </head>
+
 <body>
 
-<div class="card">
-    <h2 id="title">⚡ LOGIN</h2>
+<div class="container" id="form-container">
+    <h2 id="title">Welcome Back</h2>
 
-    <div id="nameBox" style="display:none;" class="input-group">
-        <input type="text" id="name" placeholder="Gamer Nickname (e.g. Pro_Slayer)">
+    <div id="login-form" class="fade-in">
+        <div class="input-group">
+            <input type="email" id="loginEmail" placeholder="Email Address">
+        </div>
+        <div class="input-group">
+            <input type="password" id="loginPass" placeholder="Password">
+        </div>
+        <button onclick="login()">Sign In</button>
     </div>
 
-    <div class="input-group">
-        <input type="email" id="user" placeholder="Email Address">
+    <div id="register-form" style="display:none;" class="fade-in">
+        <div class="input-group">
+            <input type="text" id="name" placeholder="Full Name">
+        </div>
+        <div class="input-group">
+            <input type="email" id="email" placeholder="Email Address">
+        </div>
+        <div class="input-group">
+            <input type="password" id="pass" placeholder="Create Password">
+        </div>
+        <button onclick="register()">Create Account</button>
     </div>
 
-    <div class="input-group">
-        <input type="password" id="pass" placeholder="Secret Password">
-    </div>
-
-    <button id="btn" onclick="submitForm()">
-        <span id="btnText">Enter Battleground</span>
-        <div id="loader" class="spinner"></div>
-    </button>
-
-    <div class="error" id="error"></div>
-
-    <div class="switch" onclick="switchMode()" id="switchText">
-        New recruit? <b>Register Here</b>
-    </div>
+    <p class="switch" onclick="toggle()">
+        <span id="switch-text">Don't have an account? <b>Register</b></span>
+    </p>
+    <p id="error"></p>
 </div>
 
 <script>
-    // Config stays the same
-    const firebaseConfig = {
-        apiKey: "AIzaSyAtqdZUIdCnUKwVF0ojn_Mv-zARgv0m4H0",
-        authDomain: "dropzoneff-b9667.firebaseapp.com",
-        projectId: "dropzoneff-b9667"
-    };
+// Firebase Config
+const firebaseConfig = {
+  apiKey: "AIzaSyAtqdZUIdCnUKwVF0ojn_Mv-zARgv0m4H0",
+  authDomain: "dropzoneff-b9667.firebaseapp.com",
+  projectId: "dropzoneff-b9667",
+  storageBucket: "dropzoneff-b9667.firebasestorage.app",
+  messagingSenderId: "1091592048913",
+  appId: "1:1091592048913:web:cea75a4b7da0afb6737cb0"
+};
 
-    if (!firebase.apps.length) {
-        firebase.initializeApp(firebaseConfig);
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+// UI Toggle Logic
+let isLogin = true;
+function toggle() {
+    isLogin = !isLogin;
+    const loginForm = document.getElementById("login-form");
+    const regForm = document.getElementById("register-form");
+    const title = document.getElementById("title");
+    const switchText = document.getElementById("switch-text");
+
+    if (isLogin) {
+        loginForm.style.display = "block";
+        regForm.style.display = "none";
+        title.innerText = "Welcome Back";
+        switchText.innerHTML = "Don't have an account? <b>Register</b>";
+    } else {
+        loginForm.style.display = "none";
+        regForm.style.display = "block";
+        title.innerText = "Join DropZone";
+        switchText.innerHTML = "Already have an account? <b>Login</b>";
     }
-    
-    const auth = firebase.auth();
-    const db = firebase.firestore();
+}
 
-    let isLogin = true;
+// Register Function
+function register() {
+    const name = document.getElementById("name").value;
+    const email = document.getElementById("email").value;
+    const pass = document.getElementById("pass").value;
+    const errorEl = document.getElementById("error");
 
-    auth.onAuthStateChanged(user => {
-       if (user) window.location.href = "dashboard.html";
+    if(!name || !email || !pass) {
+        errorEl.innerText = "Please fill all fields.";
+        return;
+    }
+
+    auth.createUserWithEmailAndPassword(email, pass)
+    .then(res => {
+        return db.collection("users").doc(res.user.uid).set({
+            name: name,
+            coins: 100,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+    })
+    .then(() => {
+        alert("🔥 Account Created Successfully!");
+    })
+    .catch(e => {
+        errorEl.innerText = e.message;
     });
+}
 
-    function switchMode() {
-        isLogin = !isLogin;
-        const title = document.getElementById("title");
-        const switchText = document.getElementById("switchText");
-        const nameBox = document.getElementById("nameBox");
-        const btnText = document.getElementById("btnText");
+// Login Function
+function login() {
+    const email = document.getElementById("loginEmail").value;
+    const pass = document.getElementById("loginPass").value;
+    const errorEl = document.getElementById("error");
 
-        title.innerText = isLogin ? "⚡ LOGIN" : "🛡️ REGISTER";
-        switchText.innerHTML = isLogin ? "New recruit? <b>Register Here</b>" : "Already a veteran? <b>Login</b>";
-        btnText.innerText = isLogin ? "Enter Battleground" : "Create Soldier";
-        
-        nameBox.style.display = isLogin ? "none" : "block";
-        document.getElementById("error").innerText = "";
+    auth.signInWithEmailAndPassword(email, pass)
+    .catch(e => {
+        errorEl.innerText = e.message;
+    });
+}
+
+// Auth State Observer
+auth.onAuthStateChanged(user => {
+    if (user) {
+        window.location = "dashboard.html";
     }
-
-    async function submitForm() {
-        let email = document.getElementById("user").value.trim();
-        let pass = document.getElementById("pass").value.trim();
-        let name = document.getElementById("name").value.trim();
-        let error = document.getElementById("error");
-        let btn = document.getElementById("btn");
-        let btnText = document.getElementById("btnText");
-        let loader = document.getElementById("loader");
-
-        if (!email || !pass || (!isLogin && !name)) {
-            showError("⚠️ All intel fields are required!");
-            return;
-        }
-
-        // UI Loading State
-        btn.disabled = true;
-        btnText.style.display = "none";
-        loader.style.display = "block";
-        error.innerText = "";
-
-        try {
-            if (isLogin) {
-                await auth.signInWithEmailAndPassword(email, pass);
-                showSuccess("✅ Mission Start!");
-                window.location.href = "dashboard.html";
-            } else {
-                let userCred = await auth.createUserWithEmailAndPassword(email, pass);
-                await db.collection("users").doc(userCred.user.uid).set({
-                    name: name,
-                    coins: 100,
-                    rank: "Bronze",
-                    joined: new Date().toISOString()
-                });
-                showSuccess("✅ Account Verified! Tactical entry allowed.");
-                setTimeout(() => switchMode(), 1500);
-            }
-        } catch (err) {
-            showError("❌ " + err.message);
-        } finally {
-            btn.disabled = false;
-            btnText.style.display = "block";
-            loader.style.display = "none";
-        }
-    }
-
-    function showError(msg) {
-        let error = document.getElementById("error");
-        error.style.color = "#ff4b2b";
-        error.innerText = msg;
-    }
-
-    function showSuccess(msg) {
-        let error = document.getElementById("error");
-        error.style.color = "#00ff88";
-        error.innerText = msg;
-    }
+});
 </script>
 
 </body>
