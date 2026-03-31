@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DropZone | Admin Master Pro</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
+    <style>
+        :root { --red: #ff3c3c; --green: #00ff88; --blue: #00d4ff; --dark: #05070a; }
+        body { background: var(--dark); color: white; font-family: 'Rajdhani', sans-serif; padding: 20px; max-width: 900px; margin: auto; }
+        h1 { font-family: 'Orbitron'; text-align: center; color: var(--red); text-transform: uppercase; letter-spacing: 3px; }
+        
+        .card { background: rgba(255,255,255,0.03); padding: 25px; border-radius: 20px; margin-bottom: 25px; border: 1px solid rgba(255,255,255,0.1); }
+        h3 { font-family: 'Orbitron'; font-size: 0.9rem; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid #222; padding-bottom: 10px; }
+        
+        .grid-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        input { width: 100%; padding: 12px; margin: 5px 0; background: #000; border: 1px solid #333; color: white; border-radius: 10px; box-sizing: border-box; outline: none; }
+        input:focus { border-color: var(--red); }
+        
+        button { width: 100%; padding: 15px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; font-family: 'Orbitron'; transition: 0.3s; margin-top: 10px; }
+        .btn-red { background: var(--red); color: white; }
+        .btn-green { background: var(--green); color: black; }
+        
+        /* Registration Table */
+        .match-header { background: #111; padding: 12px; border-radius: 10px; color: var(--blue); font-weight: bold; margin-top: 20px; border-left: 4px solid var(--blue); display: flex; justify-content: space-between; align-items: center; }
+        .reg-table { width: 100%; border-collapse: collapse; margin-top: 5px; background: rgba(0,0,0,0.2); }
+        .reg-table th { text-align: left; padding: 12px; font-size: 0.8rem; color: #666; text-transform: uppercase; }
+        .reg-table td { padding: 12px; border-bottom: 1px solid #111; font-size: 0.9rem; }
+        
+        .copy-btn { background: #222; color: #888; border: 1px solid #444; padding: 4px 8px; border-radius: 5px; font-size: 0.6rem; cursor: pointer; font-family: sans-serif; }
+        .copy-btn:hover { color: white; border-color: white; }
+    </style>
+</head>
+<body>
+
+    <h1><i class="fa-solid fa-user-shield"></i> MASTER ADMIN</h1>
+
+    <div class="card">
+        <h3 style="color: var(--red);"><i class="fa-solid fa-gamepad"></i> DEPLOY NEW MATCH</h3>
+        <input type="text" id="mTitle" placeholder="Match Title (e.g. Solo Sunday War)">
+        <div class="grid-inputs">
+            <input type="text" id="mTime" placeholder="Time (e.g. 09:00 PM)">
+            <input type="text" id="mMap" placeholder="Map (Bermuda)">
+        </div>
+        <div class="grid-inputs">
+            <input type="number" id="mPrize" placeholder="Prize (₹)">
+            <input type="number" id="mFee" placeholder="Entry Fee (💎)">
+        </div>
+        <button class="btn-red" onclick="createMatch()">PUBLISH TO DASHBOARD</button>
+    </div>
+
+    <div class="card">
+        <h3 style="color: var(--green);"><i class="fa-solid fa-key"></i> UPDATE ROOM ID/PASS</h3>
+        <input type="text" id="targetId" placeholder="Paste Match ID here...">
+        <div class="grid-inputs">
+            <input type="text" id="rID" placeholder="Room ID">
+            <input type="text" id="rPass" placeholder="Room Password">
+        </div>
+        <button class="btn-green" onclick="updateRoom()">SEND TO PLAYERS</button>
+    </div>
+
+    <div class="card">
+        <h3 style="color: var(--blue);"><i class="fa-solid fa-users"></i> LIVE PLAYER LIST</h3>
+        <div id="reg-list">
+            <p style="text-align: center; color: #444; padding: 20px;">No registrations found yet...</p>
+        </div>
+    </div>
+
+<script>
+    // --- FIREBASE CONFIG (SADAIV EKACH THEVA) ---
+    const firebaseConfig = {
+        apiKey: "AIzaSyAtqdZUIdCnUKwVF0ojn_Mv-zARgv0m4H0",
+        authDomain: "dropzoneff-b9667.firebaseapp.com",
+        projectId: "dropzoneff-b9667",
+    };
+    
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    // --- 1. CREATE MATCH ---
+    async function createMatch() {
+        const title = document.getElementById('mTitle').value;
+        const time = document.getElementById('mTime').value;
+        const map = document.getElementById('mMap').value;
+        const prize = document.getElementById('mPrize').value;
+        const fee = parseInt(document.getElementById('mFee').value) || 0;
+
+        if(!title || !time) return Swal.fire('Error', 'Match Name ani Time bhara!', 'error');
+
+        try {
+            await db.collection("matches").add({
+                title, time, map, prize, fee,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            Swal.fire('Success', 'Match Live Jhali!', 'success');
+            document.querySelectorAll('input').forEach(i => i.value = "");
+        } catch(e) { Swal.fire('Error', e.message, 'error'); }
+    }
+
+    // --- 2. UPDATE ROOM ---
+    async function updateRoom() {
+        const id = document.getElementById('targetId').value.trim();
+        const rid = document.getElementById('rID').value;
+        const rpass = document.getElementById('rPass').value;
+
+        if(!id) return Swal.fire('Wait', 'Match ID garjecha aahe!', 'warning');
+
+        try {
+            await db.collection("matches").doc(id).update({ roomId: rid, roomPass: rpass });
+            Swal.fire('Updated', 'Room ID players na pathavli!', 'success');
+        } catch(e) { Swal.fire('Error', 'ID Chukla Aahe!', 'error'); }
+    }
+
+    // --- 3. SYNC REGISTRATIONS (Real-time) ---
+    db.collection("registrations").onSnapshot(snap => {
+        const listDiv = document.getElementById('reg-list');
+        listDiv.innerHTML = "";
+        
+        let groups = {};
+        snap.forEach(doc => {
+            const data = doc.data();
+            if(!groups[data.matchId]) groups[data.matchId] = [];
+            groups[data.matchId].push(data);
+        });
+
+        for (const mId in groups) {
+            let html = `
+                <div class="match-header">
+                    <span>MATCH: ${mId}</span>
+                    <button class="copy-btn" onclick="copyId('${mId}')">COPY ID</button>
+                </div>
+                <table class="reg-table">
+                    <thead><tr><th>Player Name</th><th>Status</th></tr></thead>
+                    <tbody>
+            `;
+            groups[mId].forEach(p => {
+                html += `<tr><td>${p.playerName}</td><td style="color:var(--green)">PAID 💎</td></tr>`;
+            });
+            html += `</tbody></table>`;
+            listDiv.innerHTML += html;
+        }
+    });
+
+    // Helper: Copy Match ID
+    function copyId(id) {
+        navigator.clipboard.writeText(id);
+        Swal.fire({ title: 'ID Copied!', timer: 800, showConfirmButton: false, toast: true, position: 'top-end', icon: 'success' });
+        document.getElementById('targetId').value = id; // Automatic paste karun deu
+    }
+</script>
+</body>
+</html>
