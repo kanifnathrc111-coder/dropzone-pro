@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Join Arena | DropZone Elite</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary: #ff3c3c;
+            --secondary: #ffcc00;
+            --bg: #05070a;
+            --glass: rgba(255, 255, 255, 0.05);
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            margin: 0; font-family: 'Rajdhani', sans-serif;
+            background: var(--bg); color: white;
+            background-image: radial-gradient(circle at top right, #1e1b4b 0%, #05070a 100%);
+            min-height: 100vh; display: flex; flex-direction: column;
+        }
+
+        header {
+            padding: 20px; display: flex; align-items: center; gap: 15px;
+            background: rgba(0,0,0,0.5); backdrop-filter: blur(10px);
+        }
+
+        .back-btn { font-size: 1.5rem; color: white; cursor: pointer; }
+
+        .container { padding: 20px; flex: 1; }
+
+        /* Match Summary Card */
+        .summary-card {
+            background: var(--glass); border: 1px solid var(--border);
+            border-radius: 25px; padding: 20px; margin-bottom: 25px;
+            position: relative; overflow: hidden;
+        }
+        .summary-card::before {
+            content: 'CONFIRM ENTRY'; position: absolute; top: -10px; right: -10px;
+            font-family: 'Orbitron'; font-size: 40px; opacity: 0.03; font-weight: 900;
+        }
+
+        .m-title { font-family: 'Orbitron'; color: var(--secondary); margin: 0 0 10px 0; }
+        .m-info { display: flex; justify-content: space-between; font-size: 14px; color: #888; }
+        .fee-tag { color: var(--primary); font-weight: bold; font-family: 'Orbitron'; }
+
+        /* Input Section */
+        .input-group { margin-top: 30px; }
+        label { display: block; margin-bottom: 10px; font-family: 'Orbitron'; font-size: 12px; color: #aaa; }
+        
+        input {
+            width: 100%; background: rgba(255,255,255,0.03); border: 1px solid var(--border);
+            padding: 18px; border-radius: 15px; color: white; font-size: 18px;
+            font-family: 'Rajdhani'; outline: none; box-sizing: border-box;
+            transition: 0.3s;
+        }
+        input:focus { border-color: var(--primary); box-shadow: 0 0 15px rgba(255, 60, 60, 0.2); }
+
+        .note { 
+            margin-top: 15px; padding: 12px; background: rgba(255, 204, 0, 0.05); 
+            border-radius: 10px; font-size: 12px; color: var(--secondary);
+            border-left: 3px solid var(--secondary);
+        }
+
+        /* Action Button */
+        .confirm-btn {
+            position: fixed; bottom: 30px; left: 5%; width: 90%;
+            background: linear-gradient(45deg, var(--primary), #8b0000);
+            border: none; padding: 18px; border-radius: 20px; color: white;
+            font-family: 'Orbitron'; font-weight: 900; font-size: 16px;
+            box-shadow: 0 10px 30px rgba(255, 60, 60, 0.3); cursor: pointer;
+            transition: 0.3s;
+        }
+        .confirm-btn:disabled { background: #333; box-shadow: none; opacity: 0.5; }
+
+        /* Loading Overlay */
+        #loader {
+            display: none; position: fixed; top:0; left:0; width:100%; height:100%;
+            background: rgba(0,0,0,0.9); z-index: 10000;
+            flex-direction: column; justify-content: center; align-items: center;
+        }
+        .spinner {
+            width: 50px; height: 50px; border: 5px solid #222;
+            border-top: 5px solid var(--primary); border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+<div id="loader">
+    <div class="spinner"></div>
+    <p style="margin-top:20px; font-family:'Orbitron'; letter-spacing:2px;">PROCESSING ENTRY...</p>
+</div>
+
+<header>
+    <i class="fa-solid fa-chevron-left back-btn" onclick="history.back()"></i>
+    <h3 style="margin:0; font-family:'Orbitron'; font-size:16px;">JOIN TOURNAMENT</h3>
+</header>
+
+<div class="container">
+    <div class="summary-card">
+        <h2 id="match-name" class="m-title">LOADING...</h2>
+        <div class="m-info">
+            <span>TYPE: <b id="match-type" style="color:white;">-</b></span>
+            <span>ENTRY FEE: <b id="match-fee" class="fee-tag">💎 0</b></span>
+        </div>
+        <div style="margin-top:15px; font-size:13px; color:#666;">
+            <i class="fa-solid fa-wallet"></i> YOUR BALANCE: <b id="user-balance" style="color:var(--secondary);">💎 0</b>
+        </div>
+    </div>
+
+    <div class="input-group">
+        <label>ENTER YOUR FREE FIRE NAME / ID</label>
+        <input type="text" id="player-id" placeholder="Ex: ELITE_RAHUL_FF">
+        <div class="note">
+            <i class="fa-solid fa-circle-info"></i> कृपया तुमचा अचूक गेमिंग आयडी टाका. चुकीचा आयडी असल्यास प्राईज मिळणार नाही.
+        </div>
+    </div>
+</div>
+
+<button class="confirm-btn" id="join-now-btn" onclick="processJoin()">CONFIRM & JOIN NOW</button>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { getFirestore, doc, getDoc, runTransaction, setDoc, collection } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyAtqdZUIdCnUKwVF0ojn_Mv-zARgv0m4H0",
+        authDomain: "dropzoneff-b9667.firebaseapp.com",
+        projectId: "dropzoneff-b9667",
+        storageBucket: "dropzoneff-b9667.firebasestorage.app",
+        messagingSenderId: "1091592048913",
+        appId: "1:1091592048913:web:cea75a4b7da0afb6737cb0"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const matchId = urlParams.get('id');
+
+    let currentMatchFee = 0;
+    let currentUserBalance = 0;
+
+    onAuthStateChanged(auth, async (user) => {
+        if (!user) {
+            window.location.href = "login.html";
+            return;
+        }
+        if (!matchId) {
+            alert("मॅच सापडली नाही!");
+            window.location.href = "dashboard.html";
+            return;
+        }
+        fetchDetails(user.uid);
+    });
+
+    async function fetchDetails(uid) {
+        // Get Match Details
+        const mSnap = await getDoc(doc(db, "matches", matchId));
+        if (mSnap.exists()) {
+            const m = mSnap.data();
+            document.getElementById('match-name').innerText = m.title;
+            document.getElementById('match-type').innerText = m.type || "SOLO";
+            document.getElementById('match-fee').innerText = "💎 " + m.fee;
+            currentMatchFee = m.fee;
+        }
+
+        // Get User Balance
+        const uSnap = await getDoc(doc(db, "users", uid));
+        if (uSnap.exists()) {
+            currentUserBalance = uSnap.data().coins || 0;
+            document.getElementById('user-balance').innerText = "💎 " + currentUserBalance;
+        }
+    }
+
+    window.processJoin = async () => {
+        const gameId = document.getElementById('player-id').value.trim();
+        const user = auth.currentUser;
+
+        if (!gameId) {
+            alert("कृपया तुमचा गेम आयडी टाका!");
+            return;
+        }
+
+        if (currentUserBalance < currentMatchFee) {
+            alert("❌ अपुरा बॅलन्स! कृपया टॉप-अप करा.");
+            window.location.href = "wallet.html";
+            return;
+        }
+
+        if (!confirm(`तुम्ही खात्रीने 💎${currentMatchFee} देऊन जॉईन करू इच्छिता?`)) return;
+
+        // Show Loader
+        document.getElementById('loader').style.display = 'flex';
+        document.getElementById('join-now-btn').disabled = true;
+
+        const userRef = doc(db, "users", user.uid);
+        const regRef = doc(db, "registrations", `${matchId}_${user.uid}`);
+
+        try {
+            await runTransaction(db, async (transaction) => {
+                const uDoc = await transaction.get(userRef);
+                const rDoc = await transaction.get(regRef);
+
+                // Check if already joined
+                if (rDoc.exists()) {
+                    throw "तुम्ही आधीच या मॅचमध्ये जॉईन झाला आहात!";
+                }
+
+                // Double check balance inside transaction
+                const latestBalance = uDoc.data().coins || 0;
+                if (latestBalance < currentMatchFee) {
+                    throw "अपुरा बॅलन्स!";
+                }
+
+                // 1. Deduct Coins
+                transaction.update(userRef, {
+                    coins: latestBalance - currentMatchFee
+                });
+
+                // 2. Create Registration Entry
+                transaction.set(regRef, {
+                    matchId: matchId,
+                    userId: user.uid,
+                    gameId: gameId,
+                    username: uDoc.data().username,
+                    feePaid: currentMatchFee,
+                    timestamp: new Date(),
+                    status: "Joined"
+                });
+
+                // 3. Create Transaction Log
+                const transRef = doc(collection(db, "transactions"));
+                transaction.set(transRef, {
+                    userId: user.uid,
+                    amount: currentMatchFee,
+                    type: "MATCH_JOIN",
+                    matchName: document.getElementById('match-name').innerText,
+                    date: new Date()
+                });
+            });
+
+            alert("✅ अभिनंदन! तुम्ही यशस्वीरित्या जॉईन झाला आहात.");
+            window.location.href = "dashboard.html";
+
+        } catch (error) {
+            alert("Error: " + error);
+        } finally {
+            document.getElementById('loader').style.display = 'none';
+            document.getElementById('join-now-btn').disabled = false;
+        }
+    };
+</script>
+</body>
+</html>
