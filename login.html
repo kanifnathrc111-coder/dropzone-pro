@@ -1,278 +1,267 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="mr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DropZone | Modern Login</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>DropZone Elite | Pro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #ff4b2b;
+            --secondary: #ffcc00;
+            --neon: #00f2ff;
+            --bg: #020617;
+        }
 
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+        body {
+            margin: 0; font-family: 'Poppins', sans-serif;
+            background: var(--bg);
+            height: 100vh; display: flex; justify-content: center; align-items: center;
+            color: white; overflow: hidden;
+            position: relative;
+        }
 
-<style>
-:root {
-    --primary: #ff8c00;
-    --secondary: #ffcc00;
-    --bg: #0f0f0f;
-    --card-bg: rgba(25, 25, 25, 0.95);
-}
+        /* Animated Background Particles */
+        .bg-animate {
+            position: absolute; width: 100%; height: 100%;
+            background: radial-gradient(circle at 50% 50%, #1e1b4b 0%, #020617 100%);
+            z-index: -1;
+        }
 
-body {
-    margin: 0;
-    font-family: 'Poppins', sans-serif;
-    background: radial-gradient(circle at center, #1a1a1a 0%, #000 100%);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    color: white;
-    overflow: hidden;
-}
+        .login-card {
+            width: 92%; max-width: 400px;
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
+            padding: 40px 30px; border-radius: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 25px 50px rgba(0,0,0,0.6);
+            text-align: center;
+            z-index: 10;
+            animation: appEntry 1s cubic-bezier(0.19, 1, 0.22, 1);
+        }
 
-/* Background Animation */
-body::before {
-    content: "";
-    position: absolute;
-    width: 300px;
-    height: 300px;
-    background: var(--primary);
-    filter: blur(150px);
-    border-radius: 50%;
-    z-index: -1;
-    animation: float 10s infinite alternate;
-}
+        @keyframes appEntry {
+            0% { opacity: 0; transform: scale(0.8) translateY(50px); filter: blur(10px); }
+            100% { opacity: 1; transform: scale(1) translateY(0); filter: blur(0); }
+        }
 
-@keyframes float {
-    from { transform: translate(-50%, -50%); }
-    to { transform: translate(50%, 50%); }
-}
+        h2 {
+            font-family: 'Orbitron', sans-serif; font-size: 28px;
+            letter-spacing: 6px; margin-bottom: 35px;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 8px rgba(255,75,43,0.4));
+        }
 
-.container {
-    width: 380px;
-    background: var(--card-bg);
-    padding: 40px;
-    border-radius: 24px;
-    box-shadow: 0 15px 35px rgba(0,0,0,0.5), 0 0 15px rgba(255,140,0,0.1);
-    border: 1px solid rgba(255,255,255,0.05);
-    backdrop-filter: blur(10px);
-    transform: translateY(0);
-    transition: all 0.4s ease;
-}
+        .input-box { position: relative; margin-bottom: 18px; }
 
-h2 {
-    text-align: center;
-    font-weight: 600;
-    margin-bottom: 30px;
-    letter-spacing: 1px;
-    background: linear-gradient(90deg, #ff8c00, #ffcc00);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-}
+        input {
+            width: 100%; padding: 16px 20px; border-radius: 15px;
+            border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(0,0,0,0.5); color: white;
+            outline: none; transition: 0.4s; font-size: 14px;
+        }
 
-.input-group {
-    margin-bottom: 20px;
-    position: relative;
-}
+        input:focus {
+            border-color: var(--neon);
+            box-shadow: 0 0 20px rgba(0, 242, 255, 0.2);
+            background: rgba(0,0,0,0.7);
+        }
 
-input {
-    width: 100%;
-    padding: 14px;
-    box-sizing: border-box;
-    border-radius: 12px;
-    border: 2px solid transparent;
-    background: #222;
-    color: white;
-    font-size: 14px;
-    transition: 0.3s;
-    outline: none;
-}
+        .eye {
+            position: absolute; right: 18px; top: 16px;
+            cursor: pointer; opacity: 0.5; font-size: 18px;
+        }
 
-input:focus {
-    border-color: var(--primary);
-    background: #2a2a2a;
-    box-shadow: 0 0 10px rgba(255,140,0,0.2);
-}
+        button {
+            width: 100%; padding: 16px; border: none; border-radius: 15px;
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            color: white; font-weight: 800; font-family: 'Orbitron';
+            cursor: pointer; transition: 0.3s; margin-top: 15px;
+            letter-spacing: 1px; box-shadow: 0 8px 20px rgba(255, 75, 43, 0.3);
+        }
 
-button {
-    width: 100%;
-    padding: 14px;
-    background: linear-gradient(90deg, var(--primary), var(--secondary));
-    border: none;
-    border-radius: 12px;
-    cursor: pointer;
-    font-weight: 600;
-    font-size: 16px;
-    color: #000;
-    transition: 0.3s;
-    margin-top: 10px;
-}
+        button:hover { transform: translateY(-2px); box-shadow: 0 12px 25px rgba(255, 75, 43, 0.5); }
+        button:active { transform: scale(0.95); }
 
-button:hover {
-    transform: scale(1.02);
-    box-shadow: 0 5px 15px rgba(255,140,0,0.4);
-}
+        .strength-bar {
+            height: 5px; width: 100%; background: #111;
+            margin-top: 10px; border-radius: 10px; overflow: hidden;
+        }
+        #bar-fill { height: 100%; width: 0%; transition: 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
 
-button:active {
-    transform: scale(0.98);
-}
+        .toggle-btn { margin-top: 25px; color: #888; cursor: pointer; font-size: 13px; text-transform: uppercase; letter-spacing: 1px; }
+        .toggle-btn span { color: var(--neon); font-weight: bold; }
 
-.switch {
-    text-align: center;
-    margin-top: 20px;
-    cursor: pointer;
-    font-size: 14px;
-    color: #888;
-    transition: 0.3s;
-}
+        #error-msg { color: #ff3e3e; font-size: 12px; margin-top: 15px; font-weight: 500; animation: shake 0.4s ease-in-out; }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
 
-.switch b {
-    color: var(--secondary);
-}
-
-.switch:hover b {
-    text-decoration: underline;
-}
-
-#error {
-    color: #ff4d4d;
-    text-align: center;
-    font-size: 13px;
-    margin-top: 15px;
-    min-height: 20px;
-}
-
-/* Animations for switching forms */
-.fade-in {
-    animation: fadeIn 0.5s ease;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-</style>
+        .loader {
+            display: none; width: 20px; height: 20px; border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%; border-top-color: #fff; animation: spin 0.8s linear infinite;
+            margin: 0 auto;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
 </head>
-
 <body>
 
-<div class="container" id="form-container">
-    <h2 id="title">Welcome Back</h2>
+<div class="bg-animate"></div>
 
-    <div id="login-form" class="fade-in">
-        <div class="input-group">
-            <input type="email" id="loginEmail" placeholder="Email Address">
+<div class="login-card">
+    <h2 id="brand">DROPZONE</h2>
+
+    <div id="login-section">
+        <div class="input-box">
+            <input type="email" id="l-email" placeholder="EMAIL ADDRESS">
         </div>
-        <div class="input-group">
-            <input type="password" id="loginPass" placeholder="Password">
+        <div class="input-box">
+            <input type="password" id="l-pass" placeholder="PASSWORD">
+            <span class="eye" id="l-eye">👁️</span>
         </div>
-        <button onclick="login()">Sign In</button>
+        <button id="login-btn">ENTER ARENA <div class="loader" id="l-loader"></div></button>
+        <p class="toggle-btn" id="go-to-reg">New Warrior? <span>JOIN ELITE</span></p>
     </div>
 
-    <div id="register-form" style="display:none;" class="fade-in">
-        <div class="input-group">
-            <input type="text" id="name" placeholder="Full Name">
+    <div id="reg-section" style="display:none;">
+        <div class="input-box">
+            <input type="text" id="r-name" placeholder="GAMER TAG (Username)">
         </div>
-        <div class="input-group">
-            <input type="email" id="email" placeholder="Email Address">
+        <div class="input-box">
+            <input type="email" id="r-email" placeholder="EMAIL ADDRESS">
         </div>
-        <div class="input-group">
-            <input type="password" id="pass" placeholder="Create Password">
+        <div class="input-box">
+            <input type="password" id="r-pass" placeholder="CREATE PASSWORD">
+            <span class="eye" id="r-eye">👁️</span>
+            <div class="strength-bar"><div id="bar-fill"></div></div>
         </div>
-        <button onclick="register()">Create Account</button>
+        <button id="reg-btn">CLAIM IDENTITY <div class="loader" id="r-loader"></div></button>
+        <p class="toggle-btn" id="go-to-login">Already Member? <span>BACK TO LOGIN</span></p>
     </div>
 
-    <p class="switch" onclick="toggle()">
-        <span id="switch-text">Don't have an account? <b>Register</b></span>
-    </p>
-    <p id="error"></p>
+    <p id="error-msg"></p>
 </div>
 
-<script>
-// Firebase Config
-const firebaseConfig = {
-  apiKey: "AIzaSyAtqdZUIdCnUKwVF0ojn_Mv-zARgv0m4H0",
-  authDomain: "dropzoneff-b9667.firebaseapp.com",
-  projectId: "dropzoneff-b9667",
-  storageBucket: "dropzoneff-b9667.firebasestorage.app",
-  messagingSenderId: "1091592048913",
-  appId: "1:1091592048913:web:cea75a4b7da0afb6737cb0"
-};
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.firestore();
+    const firebaseConfig = {
+        apiKey: "AIzaSyAtqdZUIdCnUKwVF0ojn_Mv-zARgv0m4H0",
+        authDomain: "dropzoneff-b9667.firebaseapp.com",
+        projectId: "dropzoneff-b9667",
+        storageBucket: "dropzoneff-b9667.firebasestorage.app",
+        messagingSenderId: "1091592048913",
+        appId: "1:1091592048913:web:cea75a4b7da0afb6737cb0"
+    };
 
-// UI Toggle Logic
-let isLogin = true;
-function toggle() {
-    isLogin = !isLogin;
-    const loginForm = document.getElementById("login-form");
-    const regForm = document.getElementById("register-form");
-    const title = document.getElementById("title");
-    const switchText = document.getElementById("switch-text");
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
 
-    if (isLogin) {
-        loginForm.style.display = "block";
-        regForm.style.display = "none";
-        title.innerText = "Welcome Back";
-        switchText.innerHTML = "Don't have an account? <b>Register</b>";
-    } else {
-        loginForm.style.display = "none";
-        regForm.style.display = "block";
-        title.innerText = "Join DropZone";
-        switchText.innerHTML = "Already have an account? <b>Login</b>";
-    }
-}
-
-// Register Function
-function register() {
-    const name = document.getElementById("name").value;
-    const email = document.getElementById("email").value;
-    const pass = document.getElementById("pass").value;
-    const errorEl = document.getElementById("error");
-
-    if(!name || !email || !pass) {
-        errorEl.innerText = "Please fill all fields.";
-        return;
-    }
-
-    auth.createUserWithEmailAndPassword(email, pass)
-    .then(res => {
-        return db.collection("users").doc(res.user.uid).set({
-            name: name,
-            coins: 100,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
-        });
-    })
-    .then(() => {
-        alert("🔥 Account Created Successfully!");
-    })
-    .catch(e => {
-        errorEl.innerText = e.message;
+    // Function 1: Check if User already Logged In (Auto-Redirect)
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            window.location.href = "dashboard.html";
+        }
     });
-}
 
-// Login Function
-function login() {
-    const email = document.getElementById("loginEmail").value;
-    const pass = document.getElementById("loginPass").value;
-    const errorEl = document.getElementById("error");
+    const lSec = document.getElementById('login-section');
+    const rSec = document.getElementById('reg-section');
+    const errorMsg = document.getElementById('error-msg');
 
-    auth.signInWithEmailAndPassword(email, pass)
-    .catch(e => {
-        errorEl.innerText = e.message;
-    });
-}
+    // Section Toggling
+    document.getElementById('go-to-reg').onclick = () => { lSec.style.display='none'; rSec.style.display='block'; errorMsg.innerText=''; };
+    document.getElementById('go-to-login').onclick = () => { rSec.style.display='none'; lSec.style.display='block'; errorMsg.innerText=''; };
 
-// Auth State Observer
-auth.onAuthStateChanged(user => {
-    if (user) {
-        window.location = "dashboard.html";
+    // Function 2: Toggle Visibility
+    const toggleEye = (eyeId, inputId) => {
+        document.getElementById(eyeId).onclick = function() {
+            const input = document.getElementById(inputId);
+            input.type = input.type === "password" ? "text" : "password";
+            this.innerText = input.type === "password" ? "👁️" : "🙈";
+        };
+    };
+    toggleEye('l-eye', 'l-pass');
+    toggleEye('r-eye', 'r-pass');
+
+    // Function 3: Password Strength Realtime
+    document.getElementById('r-pass').oninput = function() {
+        let val = this.value;
+        let score = 0;
+        if(val.length >= 6) score++;
+        if(/[A-Z]/.test(val)) score++;
+        if(/[0-9]/.test(val)) score++;
+        if(/[^A-Za-z0-9]/.test(val)) score++;
+        
+        const bar = document.getElementById('bar-fill');
+        const colors = ["#ff4b2b", "#ffa500", "#ffff00", "#00ff00"];
+        bar.style.width = (score * 25) + "%";
+        bar.style.background = colors[score-1] || "#333";
+    };
+
+    // REGISTER ACTION
+    document.getElementById('reg-btn').onclick = async () => {
+        const name = document.getElementById('r-name').value.trim();
+        const email = document.getElementById('r-email').value.trim();
+        const pass = document.getElementById('r-pass').value;
+        const loader = document.getElementById('r-loader');
+
+        if(!name || name.length < 3) { showError("Gamer Tag खूप लहान आहे!"); return; }
+        
+        loader.style.display = 'inline-block';
+        try {
+            const res = await createUserWithEmailAndPassword(auth, email, pass);
+            await setDoc(doc(db, "users", res.user.uid), {
+                username: name,
+                coins: 50,
+                level: 1,
+                joinedDate: new Date().toISOString()
+            });
+            window.location.href = "dashboard.html";
+        } catch (e) {
+            showError(e.message);
+            loader.style.display = 'none';
+        }
+    };
+
+    // LOGIN ACTION
+    document.getElementById('login-btn').onclick = async () => {
+        const email = document.getElementById('l-email').value.trim();
+        const pass = document.getElementById('l-pass').value;
+        const loader = document.getElementById('l-loader');
+
+        loader.style.display = 'inline-block';
+        try {
+            await signInWithEmailAndPassword(auth, email, pass);
+            // Storage for Auto-fill email next time
+            localStorage.setItem("last_user", email);
+            window.location.href = "dashboard.html";
+        } catch (e) {
+            showError("Access Denied! चुकीचा ईमेल किंवा पासवर्ड.");
+            loader.style.display = 'none';
+        }
+    };
+
+    function showError(text) {
+        errorMsg.innerText = text;
+        errorMsg.style.animation = 'none';
+        setTimeout(() => errorMsg.style.animation = 'shake 0.4s ease-in-out', 10);
     }
-});
+
+    // Autofill last email
+    window.onload = () => {
+        const saved = localStorage.getItem("last_user");
+        if(saved) document.getElementById('l-email').value = saved;
+    };
 </script>
-
 </body>
 </html>
