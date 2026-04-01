@@ -1,60 +1,73 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="mr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DropZone | Admin Master Pro</title>
+    <title>DropZone | Mega Admin Master Pro (v10)</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-
     <style>
-        :root { --red: #ff3c3c; --green: #00ff88; --blue: #00d4ff; --dark: #05070a; }
-        body { background: var(--dark); color: white; font-family: 'Rajdhani', sans-serif; padding: 20px; max-width: 900px; margin: auto; }
-        h1 { font-family: 'Orbitron'; text-align: center; color: var(--red); text-transform: uppercase; letter-spacing: 3px; }
+        :root { --red: #ff3c3c; --green: #00ff88; --blue: #00d4ff; --dark: #05070a; --gold: #ffcc00; }
+        body { background: var(--dark); color: white; font-family: 'Rajdhani', sans-serif; padding: 20px; max-width: 900px; margin: auto; padding-bottom: 100px; }
+        h1 { font-family: 'Orbitron'; text-align: center; color: var(--red); text-transform: uppercase; letter-spacing: 3px; margin-bottom: 30px; }
         
-        .card { background: rgba(255,255,255,0.03); padding: 25px; border-radius: 20px; margin-bottom: 25px; border: 1px solid rgba(255,255,255,0.1); }
+        .card { background: rgba(255,255,255,0.03); padding: 25px; border-radius: 20px; margin-bottom: 25px; border: 1px solid rgba(255,255,255,0.1); position: relative; }
         h3 { font-family: 'Orbitron'; font-size: 0.9rem; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid #222; padding-bottom: 10px; }
         
         .grid-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         input { width: 100%; padding: 12px; margin: 5px 0; background: #000; border: 1px solid #333; color: white; border-radius: 10px; box-sizing: border-box; outline: none; }
         input:focus { border-color: var(--red); }
         
-        button { width: 100%; padding: 15px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; font-family: 'Orbitron'; transition: 0.3s; margin-top: 10px; }
+        button { width: 100%; padding: 15px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; font-family: 'Orbitron'; transition: 0.3s; margin-top: 10px; display: flex; justify-content: center; align-items: center; gap: 8px; }
         .btn-red { background: var(--red); color: white; }
         .btn-green { background: var(--green); color: black; }
         
-        /* Registration Table */
-        .match-header { background: #111; padding: 12px; border-radius: 10px; color: var(--blue); font-weight: bold; margin-top: 20px; border-left: 4px solid var(--blue); display: flex; justify-content: space-between; align-items: center; }
-        .reg-table { width: 100%; border-collapse: collapse; margin-top: 5px; background: rgba(0,0,0,0.2); }
-        .reg-table th { text-align: left; padding: 12px; font-size: 0.8rem; color: #666; text-transform: uppercase; }
+        .match-item { background: rgba(255,255,255,0.05); padding: 15px; border-radius: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #222; transition: 0.3s; }
+        .match-item:hover { border-color: var(--blue); }
+
+        .match-header { background: #111; padding: 15px; border-radius: 10px; color: var(--blue); font-weight: bold; margin-top: 20px; border-left: 4px solid var(--blue); display: flex; justify-content: space-between; align-items: center; }
+        .reg-table { width: 100%; border-collapse: collapse; margin-top: 5px; background: rgba(0,0,0,0.4); border-radius: 0 0 10px 10px; overflow: hidden; }
+        .reg-table th { text-align: left; padding: 12px; font-size: 0.8rem; color: #666; text-transform: uppercase; background: #000; }
         .reg-table td { padding: 12px; border-bottom: 1px solid #111; font-size: 0.9rem; }
         
-        .copy-btn { background: #222; color: #888; border: 1px solid #444; padding: 4px 8px; border-radius: 5px; font-size: 0.6rem; cursor: pointer; font-family: sans-serif; }
-        .copy-btn:hover { color: white; border-color: white; }
+        .copy-btn { background: var(--blue); color: black; border: none; padding: 6px 12px; border-radius: 5px; font-size: 0.7rem; cursor: pointer; font-family: 'Orbitron'; font-weight: bold; }
+        .trash-btn { background: none; border: 1px solid #444; color: #666; padding: 8px; border-radius: 8px; cursor: pointer; transition: 0.3s; }
+        .trash-btn:hover { color: var(--red); border-color: var(--red); }
+
+        .admin-nav { position: fixed; top: 10px; right: 10px; z-index: 1000; }
+        .home-btn { background: rgba(255,255,255,0.1); color: white; padding: 12px; border-radius: 12px; border: 1px solid var(--border); cursor: pointer; backdrop-filter: blur(10px); }
     </style>
 </head>
 <body>
 
+    <div class="admin-nav">
+        <div class="home-btn" onclick="window.location.href='dashboard.html'"><i class="fa-solid fa-house"></i></div>
+    </div>
+
     <h1><i class="fa-solid fa-user-shield"></i> MASTER ADMIN</h1>
 
     <div class="card">
-        <h3 style="color: var(--red);"><i class="fa-solid fa-gamepad"></i> DEPLOY NEW MATCH</h3>
-        <input type="text" id="mTitle" placeholder="Match Title (e.g. Solo Sunday War)">
+        <h3 style="color: var(--red);"><i class="fa-solid fa-plus-circle"></i> DEPLOY NEW MATCH</h3>
+        <input type="text" id="mTitle" placeholder="Match Title">
         <div class="grid-inputs">
-            <input type="text" id="mTime" placeholder="Time (e.g. 09:00 PM)">
+            <input type="text" id="mTime" placeholder="Time (e.g. 10:00 PM)">
             <input type="text" id="mMap" placeholder="Map (Bermuda)">
         </div>
         <div class="grid-inputs">
             <input type="number" id="mPrize" placeholder="Prize (₹)">
             <input type="number" id="mFee" placeholder="Entry Fee (💎)">
         </div>
-        <button class="btn-red" onclick="createMatch()">PUBLISH TO DASHBOARD</button>
+        <button class="btn-red" id="publishBtn"><i class="fa-solid fa-upload"></i> PUBLISH TO DASHBOARD</button>
+    </div>
+
+    <div class="card">
+        <h3 style="color: var(--blue);"><i class="fa-solid fa-tower-broadcast"></i> LIVE ON DASHBOARD</h3>
+        <div id="admin-match-list">
+            <p style="text-align: center; color: #444; padding: 10px;">Loading matches...</p>
+        </div>
     </div>
 
     <div class="card">
@@ -64,7 +77,7 @@
             <input type="text" id="rID" placeholder="Room ID">
             <input type="text" id="rPass" placeholder="Room Password">
         </div>
-        <button class="btn-green" onclick="updateRoom()">SEND TO PLAYERS</button>
+        <button class="btn-green" id="updateRoomBtn"><i class="fa-solid fa-paper-plane"></i> SEND TO PLAYERS</button>
     </div>
 
     <div class="card">
@@ -74,56 +87,100 @@
         </div>
     </div>
 
-<script>
-    // --- FIREBASE CONFIG (SADAIV EKACH THEVA) ---
+    <div class="card">
+        <h3 style="color: var(--gold);"><i class="fa-solid fa-trophy"></i> DECLARE WINNER & REWARD</h3>
+        <p style="font-size: 0.8rem; color: #888; margin-bottom: 10px;">युजरचा UID आणि जिंकलेली रक्कम टाका. पैसे लगेच जमा होतील.</p>
+        
+        <input type="text" id="winUserUid" placeholder="Winner User UID (Paste here)">
+        
+        <div class="grid-inputs">
+            <input type="number" id="winAmount" placeholder="Winning Amount (💎)">
+            <input type="text" id="winMatchNote" placeholder="Match Note (e.g. Solo Match #1)">
+        </div>
+        
+        <button class="btn-green" id="sendRewardBtn" style="background: var(--gold); color: black;">
+            <i class="fa-solid fa-gift"></i> SEND REWARD NOW
+        </button>
+    </div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, doc, updateDoc, deleteDoc, serverTimestamp, increment } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
     const firebaseConfig = {
         apiKey: "AIzaSyAtqdZUIdCnUKwVF0ojn_Mv-zARgv0m4H0",
         authDomain: "dropzoneff-b9667.firebaseapp.com",
         projectId: "dropzoneff-b9667",
     };
     
-    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
 
     // --- 1. CREATE MATCH ---
-    async function createMatch() {
+    document.getElementById('publishBtn').onclick = async () => {
         const title = document.getElementById('mTitle').value;
         const time = document.getElementById('mTime').value;
         const map = document.getElementById('mMap').value;
         const prize = document.getElementById('mPrize').value;
         const fee = parseInt(document.getElementById('mFee').value) || 0;
 
-        if(!title || !time) return Swal.fire('Error', 'Match Name ani Time bhara!', 'error');
+        if(!title || !time) return Swal.fire('Error', 'Details भरा!', 'error');
 
         try {
-            await db.collection("matches").add({
+            await addDoc(collection(db, "matches"), {
                 title, time, map, prize, fee,
-                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                createdAt: serverTimestamp(),
+                roomId: "",
+                roomPass: ""
             });
-            Swal.fire('Success', 'Match Live Jhali!', 'success');
-            document.querySelectorAll('input').forEach(i => i.value = "");
+            Swal.fire('Success', 'Match Live झाली!', 'success');
+            document.querySelectorAll('.card:nth-child(2) input').forEach(i => i.value = "");
         } catch(e) { Swal.fire('Error', e.message, 'error'); }
-    }
+    };
 
-    // --- 2. UPDATE ROOM ---
-    async function updateRoom() {
+    // --- 2. SYNC LIVE MATCHES ---
+    const qMatches = query(collection(db, "matches"), orderBy("createdAt", "desc"));
+    onSnapshot(qMatches, (snap) => {
+        const matchDiv = document.getElementById('admin-match-list');
+        matchDiv.innerHTML = "";
+        snap.forEach(mDoc => {
+            const m = mDoc.data();
+            const div = document.createElement('div');
+            div.className = 'match-item';
+            div.innerHTML = `
+                <div>
+                    <b style="color: var(--red);">${m.title}</b><br>
+                    <small style="color: #666;">ID: ${mDoc.id} | Fee: 💎${m.fee}</small>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button class="copy-btn" data-id="${mDoc.id}">ID</button>
+                    <button class="trash-btn" data-id="${mDoc.id}"><i class="fa-solid fa-trash-can"></i></button>
+                </div>`;
+            matchDiv.appendChild(div);
+        });
+    });
+
+    // --- 3. UPDATE ROOM ---
+    document.getElementById('updateRoomBtn').onclick = async () => {
         const id = document.getElementById('targetId').value.trim();
         const rid = document.getElementById('rID').value;
         const rpass = document.getElementById('rPass').value;
 
-        if(!id) return Swal.fire('Wait', 'Match ID garjecha aahe!', 'warning');
+        if(!id) return Swal.fire('Wait', 'Match ID टाका!', 'warning');
 
         try {
-            await db.collection("matches").doc(id).update({ roomId: rid, roomPass: rpass });
-            Swal.fire('Updated', 'Room ID players na pathavli!', 'success');
-        } catch(e) { Swal.fire('Error', 'ID Chukla Aahe!', 'error'); }
-    }
+            await updateDoc(doc(db, "matches", id), { roomId: rid, roomPass: rpass });
+            Swal.fire('Updated', 'Room Details पाठवले!', 'success');
+            document.getElementById('rID').value = "";
+            document.getElementById('rPass').value = "";
+        } catch(e) { Swal.fire('Error', 'ID चुकला आहे!', 'error'); }
+    };
 
-    // --- 3. SYNC REGISTRATIONS (Real-time) ---
-    db.collection("registrations").onSnapshot(snap => {
+    // --- 4. SYNC REGISTRATIONS ---
+    const qRegs = query(collection(db, "registrations"), orderBy("timestamp", "desc"));
+    onSnapshot(qRegs, (snap) => {
         const listDiv = document.getElementById('reg-list');
         listDiv.innerHTML = "";
-        
         let groups = {};
         snap.forEach(doc => {
             const data = doc.data();
@@ -132,29 +189,83 @@
         });
 
         for (const mId in groups) {
-            let html = `
-                <div class="match-header">
-                    <span>MATCH: ${mId}</span>
-                    <button class="copy-btn" onclick="copyId('${mId}')">COPY ID</button>
-                </div>
-                <table class="reg-table">
-                    <thead><tr><th>Player Name</th><th>Status</th></tr></thead>
-                    <tbody>
-            `;
+            let html = `<div class="match-header"><span>MATCH: ${mId}</span></div>
+                        <table class="reg-table">
+                        <thead><tr><th>Player</th><th>Game ID</th><th>Status</th></tr></thead><tbody>`;
             groups[mId].forEach(p => {
-                html += `<tr><td>${p.playerName}</td><td style="color:var(--green)">PAID 💎</td></tr>`;
+                html += `<tr><td>${p.username}</td><td style="color:var(--blue)">${p.gameId}</td><td style="color:var(--green)">PAID 💎</td></tr>`;
             });
             html += `</tbody></table>`;
             listDiv.innerHTML += html;
         }
     });
 
-    // Helper: Copy Match ID
-    function copyId(id) {
-        navigator.clipboard.writeText(id);
-        Swal.fire({ title: 'ID Copied!', timer: 800, showConfirmButton: false, toast: true, position: 'top-end', icon: 'success' });
-        document.getElementById('targetId').value = id; // Automatic paste karun deu
-    }
+    // --- 🏆 5. REWARD WINNER LOGIC ---
+    document.getElementById('sendRewardBtn').onclick = async () => {
+        const uid = document.getElementById('winUserUid').value.trim();
+        const amount = parseInt(document.getElementById('winAmount').value);
+        const note = document.getElementById('winMatchNote').value || "Match Win Bonus";
+
+        if(!uid || !amount) {
+            return Swal.fire('Error', 'UID आणि Amount दोन्ही आवश्यक आहेत!', 'error');
+        }
+
+        const confirm = await Swal.fire({
+            title: 'खात्री आहे का?',
+            text: `UID: ${uid} ला ${amount} 💎 पाठवले जातील.`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#00ff88',
+            confirmButtonText: 'हो, पाठवा!',
+            background: '#05070a', color: '#fff'
+        });
+
+        if (confirm.isConfirmed) {
+            try {
+                // १. युजरचे कॉइन्स वाढवणे
+                const userRef = doc(db, "users", uid);
+                await updateDoc(userRef, {
+                    coins: increment(amount)
+                });
+
+                // २. ट्रांझॅक्शन हिस्ट्रीमध्ये एन्ट्री टाकणे (User ला दिसण्यासाठी)
+                await addDoc(collection(db, "transactions"), {
+                    uid: uid,
+                    amount: amount,
+                    type: "add",
+                    note: "🏆 " + note,
+                    timestamp: serverTimestamp()
+                });
+
+                Swal.fire({ title: 'Success', text: '💰 बक्षीस युजरच्या वॉलेटमध्ये जमा झाले!', icon: 'success', background: '#05070a', color: '#fff' });
+                
+                // Inputs clear करा
+                document.getElementById('winUserUid').value = "";
+                document.getElementById('winAmount').value = "";
+                document.getElementById('winMatchNote').value = "";
+
+            } catch (e) {
+                console.error(e);
+                Swal.fire({ title: 'Error', text: 'UID चुकला असावा किंवा युजर सापडला नाही!', icon: 'error', background: '#05070a', color: '#fff' });
+            }
+        }
+    };
+
+    // Event Delegation for Copy & Delete
+    document.addEventListener('click', async (e) => {
+        if(e.target.classList.contains('copy-btn')) {
+            const id = e.target.getAttribute('data-id');
+            navigator.clipboard.writeText(id);
+            document.getElementById('targetId').value = id;
+            Swal.fire({ title: 'ID Copied!', timer: 700, showConfirmButton: false, toast: true, position: 'top-end', icon: 'success', background: '#05070a', color: '#fff' });
+        }
+        if(e.target.closest('.trash-btn')) {
+            const btn = e.target.closest('.trash-btn');
+            const id = btn.getAttribute('data-id');
+            const result = await Swal.fire({ title: 'डिलीट करायची का?', showCancelButton: true, confirmButtonText: 'हो', background: '#05070a', color: '#fff' });
+            if (result.isConfirmed) await deleteDoc(doc(db, "matches", id));
+        }
+    });
 </script>
 </body>
 </html>
