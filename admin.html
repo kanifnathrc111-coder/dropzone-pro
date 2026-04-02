@@ -38,7 +38,7 @@
         .trash-btn:hover { color: var(--red); border-color: var(--red); }
 
         .admin-nav { position: fixed; top: 10px; right: 10px; z-index: 1000; }
-        .home-btn { background: rgba(255,255,255,0.1); color: white; padding: 12px; border-radius: 12px; border: 1px solid var(--border); cursor: pointer; backdrop-filter: blur(10px); }
+        .home-btn { background: rgba(255,255,255,0.1); color: white; padding: 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.2); cursor: pointer; backdrop-filter: blur(10px); }
     </style>
 </head>
 <body>
@@ -90,14 +90,11 @@
     <div class="card">
         <h3 style="color: var(--gold);"><i class="fa-solid fa-trophy"></i> DECLARE WINNER & REWARD</h3>
         <p style="font-size: 0.8rem; color: #888; margin-bottom: 10px;">युजरचा UID आणि जिंकलेली रक्कम टाका. पैसे लगेच जमा होतील.</p>
-        
         <input type="text" id="winUserUid" placeholder="Winner User UID (Paste here)">
-        
         <div class="grid-inputs">
             <input type="number" id="winAmount" placeholder="Winning Amount (💎)">
             <input type="text" id="winMatchNote" placeholder="Match Note (e.g. Solo Match #1)">
         </div>
-        
         <button class="btn-green" id="sendRewardBtn" style="background: var(--gold); color: black;">
             <i class="fa-solid fa-gift"></i> SEND REWARD NOW
         </button>
@@ -105,6 +102,7 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
     import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, doc, updateDoc, deleteDoc, serverTimestamp, increment } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -115,6 +113,23 @@
     
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
+    const auth = getAuth(app);
+
+    // --- 🛡️ SECURITY LOCK (फक्त तुझा UID उघडू शकेल) ---
+    const myAdminUid = "WDcBQp2tQNSF0IuuXiOb6UeI5Vw2"; 
+
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            if (user.uid !== myAdminUid) {
+                alert("ACCESS DENIED: तुम्ही ॲडमिन नाही आहात!");
+                window.location.href = "dashboard.html";
+            } else {
+                console.log("Welcome Master Admin! Access Granted.");
+            }
+        } else {
+            window.location.href = "index.html";
+        }
+    });
 
     // --- 1. CREATE MATCH ---
     document.getElementById('publishBtn').onclick = async () => {
@@ -134,7 +149,7 @@
                 roomPass: ""
             });
             Swal.fire('Success', 'Match Live झाली!', 'success');
-            document.querySelectorAll('.card:nth-child(2) input').forEach(i => i.value = "");
+            document.querySelectorAll('.card input').forEach(i => i.value = "");
         } catch(e) { Swal.fire('Error', e.message, 'error'); }
     };
 
@@ -189,7 +204,7 @@
         });
 
         for (const mId in groups) {
-            let html = `<div class="match-header"><span>MATCH: ${mId}</span></div>
+            let html = `<div class="match-header"><span>MATCH ID: ${mId}</span></div>
                         <table class="reg-table">
                         <thead><tr><th>Player</th><th>Game ID</th><th>Status</th></tr></thead><tbody>`;
             groups[mId].forEach(p => {
@@ -222,13 +237,9 @@
 
         if (confirm.isConfirmed) {
             try {
-                // १. युजरचे कॉइन्स वाढवणे
                 const userRef = doc(db, "users", uid);
-                await updateDoc(userRef, {
-                    coins: increment(amount)
-                });
+                await updateDoc(userRef, { coins: increment(amount) });
 
-                // २. ट्रांझॅक्शन हिस्ट्रीमध्ये एन्ट्री टाकणे (User ला दिसण्यासाठी)
                 await addDoc(collection(db, "transactions"), {
                     uid: uid,
                     amount: amount,
@@ -237,16 +248,11 @@
                     timestamp: serverTimestamp()
                 });
 
-                Swal.fire({ title: 'Success', text: '💰 बक्षीस युजरच्या वॉलेटमध्ये जमा झाले!', icon: 'success', background: '#05070a', color: '#fff' });
-                
-                // Inputs clear करा
+                Swal.fire({ title: 'Success', text: '💰 बक्षीस जमा झाले!', icon: 'success', background: '#05070a', color: '#fff' });
                 document.getElementById('winUserUid').value = "";
                 document.getElementById('winAmount').value = "";
-                document.getElementById('winMatchNote').value = "";
-
             } catch (e) {
-                console.error(e);
-                Swal.fire({ title: 'Error', text: 'UID चुकला असावा किंवा युजर सापडला नाही!', icon: 'error', background: '#05070a', color: '#fff' });
+                Swal.fire({ title: 'Error', text: 'UID चुकला असावा!', icon: 'error', background: '#05070a', color: '#fff' });
             }
         }
     };
